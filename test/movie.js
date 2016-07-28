@@ -153,6 +153,7 @@ describe('La Ruta de las peliculas', function () {
         return request
           .put('/movie/' + movie_id)
           .set('Accept', 'application/json')
+          .send(movie)
           .expect(200)
           .expect('Content-Type',/application\/json/)
       })
@@ -163,8 +164,8 @@ describe('La Ruta de las peliculas', function () {
         movie = body.movie
 
         expect(movie).to.have.property('_id', movie_id)
-        //expect(movie).to.have.property('title', 'pulp fiction')
-        //expect(movie).to.have.property('year', '1993')
+        expect(movie).to.have.property('title', 'pulp fiction')
+        expect(movie).to.have.property('year', '1993')
         done()
       }, done)
     })
