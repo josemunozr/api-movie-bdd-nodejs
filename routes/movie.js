@@ -67,4 +67,22 @@ router
 
 })
 
+.delete('/:id', function (req, res, next) {
+  console.log("DELETE:id ", req.params.id)
+  
+  if(!req.params.id){
+    res
+    .status(403)
+    .json({error: true, message: 'Params empty'})
+  }
+
+  let id = req.params.id
+  delete Movie[id]
+  
+  res
+    .status(400)
+    .json({})
+
+})
+
 module.exports = router;
