@@ -1,6 +1,8 @@
 "use strict"
 let request = require('supertest-as-promised')
 const api = require('../app')
+const mongoose = require('mongoose')
+const config = require('../lib/config')
 const _ = require('lodash')
 const host = api
 
@@ -8,7 +10,17 @@ request = request(host)
 
 // escenario
 describe('La Ruta de las peliculas', function () {
-  //peticion
+  
+  before(() => {
+
+    mongoose.connect(config.database)
+  })
+
+  after((done) => {
+    mongoose.disconnect(done)
+    mongoose.models = {}
+  })
+
 	describe('POST /movie', function () {
 		it('deberia crear un pelicula', function (done) {
       let movie = {
