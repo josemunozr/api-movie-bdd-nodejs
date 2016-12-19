@@ -1,8 +1,10 @@
 "use strict"
 
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const jwt = require('jsonwebtoken')
 const User = require('../lib/model/user')
+const config = require('../lib/config')
+const router = express.Router()
 const crypto = require('crypto'),
       algorithm = 'aes-256-ctr',
       password = 'SuP3rS3cr3T'
@@ -21,9 +23,10 @@ function decrypt(text) {
   return dec
 }
 
-/* GET users listing. */
+
 router
 .post('/', function(req, res, next) {
+  console.log("POST AUTH")
   if(!req.body){
     res
       .status(403)
@@ -38,28 +41,24 @@ router
         res
           .status(403)
           .json({error: true, message: err})
-      }else if(user){
-        if(decrypt(user.password) === _user.password){
+      }
+      else if(user) {
+        if(user.password === encrypt(_user.password)){
+          let token = jwt.sign(user, config.secret, {
+            expiresIn: '24hr'
+          })
+
           res
             .status(201)
-            .json({user: user})
-        }else {
-          res
-            .status(201)
-            .json({error: true, message: 'Usuario ya existe'})
+            .json({token: token})
         }
-      }else {
-        new User({
-          username: _user.username,
-          password: encrypt(_user.password)
-        })
-        .save((err, user) => {
-          res
-            .status(201)
-            .json({user: user.username})
-        })
+      }
+      else {
+        res
+          .status(403)
+          .json({error: true, message: 'no existe usuario'})
       }
     })
-});
+})
 
-module.exports = router;
+module.exports = router

@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
+var auth = require('./routes/auth')
 var index = require('./routes/index')
 var movie = require('./routes/movie')
 var user = require('./routes/user')
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index)
+app.use('/auth', auth)
 app.use('/movie', movie)
 app.use('/user', user)
 
