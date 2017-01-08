@@ -42,7 +42,7 @@ router
         if(decrypt(user.password) === _user.password){
           res
             .status(201)
-            .json({user: user})
+            .json({user: {username : user.username, _id: user._id}})
         }else {
           res
             .status(201)

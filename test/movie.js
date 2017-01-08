@@ -27,14 +27,39 @@ describe('La Ruta de las peliculas', function () {
         'title' : 'back to the future',
         'year' : '1985'
       }
+      let user = {
+        'username' : 'jmunoz',
+        'password' : '12345678'
+      }
 
-     request
-        .post('/movie')
+      request
+        .post('/user')
         .set('Accept', 'application/json')
-        .send(movie)
+        .send(user)
         .expect(201)
         .expect('Content-Type', /application\/json/)
-      .end((err, res) => {
+      .then((res) => {
+        let _user = res.body.user
+        _user.password = user.password
+
+        return request
+          .post('/auth')
+          .set('Accept', 'application/json')
+          .send(_user)
+          .expect(201)
+          .expect('Content-Type', /application\/json/)
+      })
+      .then((res) => {
+        let token = res.body.token
+        return request
+          .post('/movie')
+          .set('Accept', 'application/json')
+          .set('x-access-token', token)
+          .send(movie)
+          .expect(201)
+          .expect('Content-Type', /application\/json/)
+      })
+      .then((res) => {
         let body = res.body
 
         expect(body).to.have.property('movie')
@@ -44,7 +69,7 @@ describe('La Ruta de las peliculas', function () {
         expect(movie).to.have.property('year', '1985')
         expect(movie).to.have.property('_id')
 
-        done(err)
+        done()
       })
     })
 	})
@@ -53,6 +78,8 @@ describe('La Ruta de las peliculas', function () {
     it('deberia obtener todas las peliculas', function (done) {
       let movie_id
       let movie2_id
+      let token
+
       let movie = {
         'title' : 'back to the future',
         'year' : '1985'
@@ -62,17 +89,45 @@ describe('La Ruta de las peliculas', function () {
         'year': '1989'
       }
 
+      let user = {
+        'username' : 'jmunoz',
+        'password' : '12345678'
+      }
+
       request
+        .post('/user')
+        .set('Accept', 'application/json')
+        .send(user)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+      .then((res) => {
+        let _user = res.body.user
+        _user.password = user.password
+
+        return request
+          .post('/auth')
+          .set('Accept', 'application/json')
+          .send(_user)
+          .expect(201)
+          .expect('Content-Type', /application\/json/)
+      })
+      .then((res) => {
+        token = res.body.token
+
+        return request
          .post('/movie')
          .set('Accept', 'application/json')
+         .set('x-access-token', token)
          .send(movie)
          .expect(201)
          .expect('Content-Type', /application\/json/)
+      })
        .then((res) => {
          movie_id = res.body.movie._id
          return request
            .post('/movie')
            .set('Accept', 'application/json')
+           .set('x-access-token', token)
            .send(movie2)
            .expect(201)
            .expect('Content-Type', /application\/json/)
@@ -82,6 +137,7 @@ describe('La Ruta de las peliculas', function () {
           return request
             .get('/movie')
             .set('Accept', 'application/json')
+            .set('x-access-token', token)
             .expect(200)
             .expect('Content-Type', /application\/json/)
        }, done)
@@ -112,22 +168,51 @@ describe('La Ruta de las peliculas', function () {
   describe('una peticion Get /:id', function () {
     it('deberia traer una sola pelicula', function (done) {
       let movie_id
+      let token
       let movie = {
         'title': 'her',
         'year' : '2013'
       }
 
+      let user = {
+        'username' : 'jmunoz',
+        'password' : '12345678'
+      }
+
       request
-         .post('/movie')
-         .set('Accept', 'application/json')
-         .send(movie)
-         .expect(201)
-         .expect('Content-Type', /application\/json/)
+        .post('/user')
+        .set('Accept', 'application/json')
+        .send(user)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+      .then((res) => {
+        let _user = res.body.user
+        _user.password = user.password
+
+        return request
+          .post('/auth')
+          .set('Accept', 'application/json')
+          .send(_user)
+          .expect(201)
+          .expect('Content-Type', /application\/json/)
+      })
+        .then((res) => {
+          token = res.body.token
+
+          return request
+             .post('/movie')
+             .set('Accept', 'application/json')
+             .set('x-access-token', token)
+             .send(movie)
+             .expect(201)
+             .expect('Content-Type', /application\/json/)
+        })
        .then((res) => {
          movie_id = res.body.movie._id
          return request
           .get('/movie/' + movie_id)
           .set('Accept', 'application/json')
+          .set('x-access-token', token)
           .expect(200)
           .expect('Content-Type', /application\/json/)
         })
@@ -149,22 +234,50 @@ describe('La Ruta de las peliculas', function () {
   describe('una peticion PUT /movie', function () {
     it('deberia modificar una pelicula', function (done) {
       let movie_id
+      let token
       let movie = {
         'title' : 'pulp fiction',
         'year' : '1993'
       }
 
+      let user = {
+        'username' : 'jmunoz',
+        'password' : '12345678'
+      }
+
       request
+        .post('/user')
+        .set('Accept', 'application/json')
+        .send(user)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+      .then((res) => {
+        let _user = res.body.user
+        _user.password = user.password
+
+        return request
+          .post('/auth')
+          .set('Accept', 'application/json')
+          .send(_user)
+          .expect(201)
+          .expect('Content-Type', /application\/json/)
+      })
+      .then( (res) => {
+        token = res.body.token
+        return request
         .post('/movie')
         .set('Accept', 'application/json')
+        .set('x-access-token', token)
         .send(movie)
         .expect(201)
         .expect('Content-Type', /application\/json/)
+      })
       .then((res) => {
         movie_id = res.body.movie._id
         return request
           .put('/movie/' + movie_id)
           .set('Accept', 'application/json')
+          .set('x-access-token', token)
           .send(movie)
           .expect(200)
           .expect('Content-Type',/application\/json/)
@@ -186,23 +299,51 @@ describe('La Ruta de las peliculas', function () {
   describe('una peticion DELETE', function () {
     it('deberia eliminar una pelicula', function (done) {
       let movie_id
+      let token
       let movie = {
         'title' : 'pulp fiction',
         'year' : '1993'
       }
 
+      let user = {
+        'username' : 'jmunoz',
+        'password' : '12345678'
+      }
+
       request
+        .post('/user')
+        .set('Accept', 'application/json')
+        .send(user)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+      .then((res) => {
+        let _user = res.body.user
+        _user.password = user.password
+
+        return request
+          .post('/auth')
+          .set('Accept', 'application/json')
+          .send(_user)
+          .expect(201)
+          .expect('Content-Type', /application\/json/)
+      })
+      .then((res) => {
+        token = res.body.token
+        return request
         .post('/movie')
         .set('Accept', 'application/json')
+        .set('x-access-token', token)
         .send(movie)
         .expect(201)
         .expect('Content-Type', /application\/json/)
+      })
       .then((res) => {
         movie_id = res.body.movie._id
 
         return request
           .delete('/movie/' + movie_id)
           .set('Accept', 'application/json')
+          .set('x-access-token', token)
           .expect(400)
           .expect('Content-Type', /application\/json/)
       })
